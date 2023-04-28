@@ -7,9 +7,8 @@ module.exports = (api, options, rootOptions) => {
     "type": "module",
     // # 扩展pkg#scripts
     scripts: {
-      "serve": "vue-cli-service serve",
       "build": "vite build",
-      "dev": "vite --port 3000",
+      "serve": "vite --port 3000",
       "preview": "vite preview"
     }, 
     // # 扩展pkg#dependencies
