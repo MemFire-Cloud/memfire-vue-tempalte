@@ -24,11 +24,14 @@ export const DownloadFile = async (filename) => {
     try {
         const { data, error } = await supabase
             .storage.from('files')
-            .getPublicUrl(filename)
+            .download(filename)
         if (error) {
             throw error
         } else {
-            window.open(data.publicUrl)
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(data);
+            link.download = filename;
+            link.click();
         }
     } catch (error) {
         throw error.message || error.error_description

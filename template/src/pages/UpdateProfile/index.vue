@@ -1,4 +1,3 @@
-
 <script setup>
 import { message } from 'ant-design-vue';
 import { ref ,onMounted ,watch} from "vue";
@@ -70,7 +69,9 @@ const filePath = ref("");
         GetProfile(router.currentRoute.value.query.id).then((res) => {
             if (res) {
                 if (res) {
-                    downloadImage(res[0].avatar)
+                    if(res[0].avatar){
+                        downloadImage(res[0].avatar)
+                    }
                     filePath.value = res[0].avatar
                     name.value = res[0].user_name
                     email.value = res[0].email
@@ -78,7 +79,6 @@ const filePath = ref("");
                 }
             }
         }).catch(err => {
-            message.error(err)
         })
     }
     const back = () => {

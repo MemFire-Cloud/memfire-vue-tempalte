@@ -70,7 +70,7 @@ const sendMessage = (values) => {
 <template>
   <a-layout style="height: 100vh">
     <HeaderComponent :type="3" />
-    <a-content style="padding: 50px">
+    <a-content style="padding: 50px;width:70%">
       <a-row :gutter="16" class="overflow-y-auto bg-white">
         <a-col :span="16">
           <a-list item-layout="horizontal" v-if="messages.length>0" :data-source="messages">
@@ -81,7 +81,7 @@ const sendMessage = (values) => {
                   <a-avatar :src="item.imgUrl" />
                 </template>
                 <template #title>
-                  <span>{{ item.user_name }}</span>
+                  <span>{{ item.profile.user_name }}</span>
                 </template>
               </a-list-item-meta>
             </a-list-item>

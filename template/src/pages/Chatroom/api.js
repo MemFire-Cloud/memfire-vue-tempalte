@@ -6,14 +6,14 @@ export const GetInitialMessages = async () => {
     try {
         const { data, error } = await supabase
             .from('messages')
-            .select('*')
+            .select(`id,message,profile (id,avatar,user_name)`)
         if (error) {
             throw error
         } else {
             if (data.length > 0) {
                 const responses = [];
                 for (const item of data) {
-                    item.imgUrl = await DownloadImage(item.avatar);
+                    item.imgUrl = await DownloadImage(item.profile.avatar);
                     responses.push(item);
                 }
             }

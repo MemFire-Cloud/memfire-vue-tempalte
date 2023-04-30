@@ -15,12 +15,16 @@ const getProfile = () => {
   GetProfile(router.currentRoute.value.query.id)
     .then((res) => {
       if (res) {
-        downloadImage(res[0].avatar);
+        if(res[0].avatar){
+          downloadImage(res[0].avatar);
+        }else{
+          message.info('暂无完整个人信息，请前去修改个人信息！');
+        }
         profile.value = res[0];
       }
     })
     .catch((err) => {
-      message.error(err);
+      message.info('暂无完整个人信息，请前去修改个人信息！');
     });
 };
 const downloadImage = (path) => {

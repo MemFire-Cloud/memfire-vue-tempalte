@@ -200,7 +200,7 @@ const columns = [
 </script>
 
 <template>
-  <a-layout>
+  <a-layout class="min-h-screen">
     <HeaderComponent :type="1" />
     <a-space
       direction="vertical"
