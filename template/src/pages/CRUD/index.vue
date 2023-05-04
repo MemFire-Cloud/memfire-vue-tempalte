@@ -4,15 +4,15 @@ import { ref, onMounted, watch } from "vue";
 import { useRouter } from "vue-router";
 import HeaderComponent from "../../components/HeaderComponent.vue";
 import {
-  FetchCount,
+  FetchTodo,
   FetchPage,
   SearchText,
-  UpdateAccount,
-  AddAccount,
-  DeleteAccount,
+  UpdateTodo,
+  AddTodo,
+  DeleteTodo,
 } from "./api";
 const layout = {
-  labelCol: { span: 8 },
+  labelCol: { span: 16 },
   wrapperCol: { span: 16 },
 };
 const formTailLayout = {
@@ -23,29 +23,25 @@ const router = useRouter();
 const visible = ref(false);
 const addModel = ref(false);
 const editModel = ref(false);
-const accountId = ref("");
-const account = ref([]);
-const usernameInput = ref("");
-const emailInput = ref("");
-const addressInput = ref("");
-const username = ref("");
+const todo_id = ref("");
+const todoList = ref([]);
+const completedInput = ref(false);
+const searchInput = ref("");
+const todoInfo = ref("");
 const current = ref(1);
-const email = ref("");
+const completed = ref(false);
 const total = ref(0);
-const age = ref("");
-const address = ref("");
 const start = ref(0);
 const end = ref(9);
 const onFinishSearch = () => {
   SearchText({
-    username: usernameInput.value,
-    email: emailInput.value,
-    address: addressInput.value,
+    todoInfo: searchInput.value,
+    completed:completedInput.value,
   })
     .then((res) => {
       start.value = 0;
       end.value = 9;
-      account.value = res;
+      todoList.value = res;
     })
     .catch((err) => {
       message.error(err);
@@ -53,43 +49,34 @@ const onFinishSearch = () => {
 };
 const handleOk = () => {
   if (addModel.value) {
-    AddAccount({
-      user_name: username.value,
-      email: email.value,
-      age: age.value,
-      address: address.value,
+    AddTodo({
+      todo: todoInfo.value,
+      completed:completed.value,
+      user_id: router.currentRoute.value.query.id
     })
       .then((res) => {
-        getUserList(start.value, end.value);
+        getTodoList(start.value, end.value);
         visible.value = false;
         addModel.value = false;
-        username.value = "";
-        email.value = "";
-        address.value = "";
-        age.value = "";
+        todoInfo.value = "";
         message.success("添加成功！");
       })
       .catch((err) => {
         message.error(err);
       });
   } else if (editModel.value) {
-    UpdateAccount(
+    UpdateTodo(
       {
-        user_name: username.value,
-        email: email.value,
-        age: age.value,
-        address: address.value,
+        todo: todoInfo.value,
+        completed:completed.value
       },
-      accountId.value
+      todo_id.value
     )
       .then((res) => {
-        getUserList(start.value, end.value);
+        getTodoList(start.value, end.value);
         visible.value = false;
         editModel.value = false;
-        username.value = "";
-        email.value = "";
-        address.value = "";
-        age.value = "";
+        todoInfo.value = "";
         message.success("修改成功！");
       })
       .catch((err) => {
@@ -99,34 +86,32 @@ const handleOk = () => {
 };
 
 function edit(item) {
-  email.value = item.email;
-  username.value = item.user_name;
-  address.value = item.address;
-  age.value = item.age;
+  todoInfo.value = item.todo;
+  completed.value = item.completed;
   visible.value = true;
   editModel.value = true;
-  accountId.value = item.id;
+  todo_id.value = item.id;
 }
 const del = (id) => {
-  DeleteAccount(id)
+  DeleteTodo(id)
     .then((res) => {
-      getUserList(start.value, end.value);
+      getTodoList(start.value, end.value);
     })
     .catch((err) => {
       message.error(err);
     });
 };
-const getUserList = (start, end) => {
+const getTodoList = (start, end) => {
   FetchPage(start, end)
     .then((res) => {
-      account.value = res;
+      todoList.value = res;
     })
     .catch((err) => {
       message.error(err);
     });
 };
 const allCount = () => {
-  FetchCount()
+  FetchTodo()
     .then((res) => {
       total.value = res;
     })
@@ -142,50 +127,32 @@ const setAddModel = () => {
   addModel.value = true;
 };
 const reset = () => {
-  usernameInput.value = "";
-  usernameInput.value = "";
-  usernameInput.value = "";
+  searchInput.value = "";
+  getTodoList(start, end);
 };
 // 获取列表
 onMounted(() => {
-  getUserList(start, end);
+  getTodoList(start, end);
   allCount();
 });
 watch(current, () => {
   start.value = current.value * 10 - 10;
   end.value = current.value * 10 - 1;
-  getUserList(current.value * 10 - 10, current.value * 10 - 1);
+  getTodoList(current.value * 10 - 10, current.value * 10 - 1);
 });
 const validateMessages = {
   required: "${label} is required!",
-  types: {
-    email: "${label} is not a valid email!",
-    number: "${label} is not a valid number!",
-  },
-  number: {
-    range: "${label} must be between ${min} and ${max}",
-  },
 };
 const columns = [
   {
-    title: "名称",
-    dataIndex: "user_name",
-    key: "user_name",
+    title: "待办事项",
+    dataIndex: "todo",
+    key: "todo",
   },
   {
-    title: "邮箱",
-    dataIndex: "email",
-    key: "email",
-  },
-  {
-    title: "年龄",
-    dataIndex: "age",
-    key: "age",
-  },
-  {
-    title: "地址",
-    dataIndex: "address",
-    key: "address",
+    title: "是否完成",
+    dataIndex: "completed",
+    key: "completed",
   },
   {
     title: "创建时间",
@@ -216,14 +183,11 @@ const columns = [
             @submit="onFinishSearch"
             :validateMessages="validateMessages"
           >
-            <a-form-item name="username" label="名称">
-              <a-input v-model:value="usernameInput" autocomplete="off" />
+            <a-form-item name="searchInput" label="待办事项">
+              <a-input v-model:value="searchInput" autocomplete="off" />
             </a-form-item>
-            <a-form-item name="email" label="邮箱">
-              <a-input v-model:value="emailInput" autocomplete="off" />
-            </a-form-item>
-            <a-form-item name="address" label="地址">
-              <a-input v-model:value="addressInput" autocomplete="off" />
+            <a-form-item name="completedInput" label="是否完成">
+              <a-switch v-model:checked="completedInput" />
             </a-form-item>
             <a-form-item v-bind="formTailLayout">
               <a-button type="default" htmlType="submit"> 查询 </a-button>
@@ -239,8 +203,18 @@ const columns = [
           </a-form>
         </a-space>
         <a-content>
-          <a-table :columns="columns" :pagination="false" :dataSource="account">
+          <a-table :columns="columns" :pagination="false" :dataSource="todoList">
             <template #bodyCell="{ column, record }">
+              <template v-if="column.dataIndex === 'completed'">
+                <span>
+                  <a-tag
+                    :key="tag"
+                    :color="record.completed === true ? 'geekblue'  : 'green'"
+                  >
+                    {{ record.completed === true ? '完成'  : '未完成' }}
+                  </a-tag>
+                </span>
+              </template>
               <template v-if="column.dataIndex === 'action'">
                 <div class="editable-row-operations">
                   <a-space size="middle">
@@ -269,52 +243,22 @@ const columns = [
       >
         <div className="mb-5 flex items-end mt-10">
           <label className="block font-bold mb-2 w-1/6" htmlFor="name">
-            名 称 :
+            待办事项 :
           </label>
           <a-input
             autocomplete="off"
             className="w-full px-3 py-2 border rounded-md w-9/12"
             id="name"
             type="text"
-            v-model:value="username"
+            v-model:value="todoInfo"
             required
           />
         </div>
         <div className="mb-5 flex items-end">
           <label className="block font-bold mb-2 w-1/6" htmlFor="name">
-            邮 箱 :
+            是否完成 :
           </label>
-          <a-input
-            autocomplete="off"
-            className="w-full px-3 py-2 border rounded-md w-9/12"
-            type="text"
-            v-model:value="email"
-            required
-          />
-        </div>
-        <div className="mb-5 flex items-end">
-          <label className="block font-bold mb-2 w-1/6" htmlFor="name">
-            年 龄 :
-          </label>
-          <a-input
-            autocomplete="off"
-            className="w-full px-3 py-2 border rounded-md w-9/12"
-            type="number"
-            v-model:value="age"
-            required
-          />
-        </div>
-        <div className="mb-5 flex items-end">
-          <label className="block font-bold mb-2 w-1/6" htmlFor="name">
-            地 址 :
-          </label>
-          <a-input
-            autocomplete="off"
-            className="w-full px-3 py-2 border rounded-md w-9/12"
-            type="text"
-            v-model:value="address"
-            required
-          />
+          <a-switch v-model:checked="completed" />
         </div>
       </a-modal>
     </a-space>

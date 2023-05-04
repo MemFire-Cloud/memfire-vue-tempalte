@@ -1,10 +1,10 @@
 import { supabase } from '../../supabaseClient'
 //列表模块API
 // 获取列表数据
-export const FetchCount = async () => {
+export const FetchTodo = async () => {
     try {
         const { data, error } = await supabase
-            .from('account')
+            .from('todo_list')
             .select('*')
         if (error) {
             throw error
@@ -19,7 +19,7 @@ export const FetchCount = async () => {
 export const FetchPage = async (start, end) => {
     try {
         const { data, error } = await supabase
-            .from('account')
+            .from('todo_list')
             .select('*')
             .order('created_at', { ascending: false })
             .range(start, end)
@@ -37,8 +37,8 @@ export const FetchPage = async (start, end) => {
 export const SearchText = async (query) => {
     try {
         const { data, error } = await supabase
-            .from('account')
-            .select('*').order('created_at', { ascending: false }).filter('address', 'ilike', `%${query.address ? query.address : ''}%`).filter('email', 'ilike', `%${query.email ? query.email : ''}%`).filter('user_name', 'ilike', `%${query.username ? query.username : ''}%`)
+            .from('todo_list')
+            .select('*').order('created_at', { ascending: false }).filter('todo', 'ilike', `%${query.todoInfo ? query.todoInfo : ''}%`).filter('completed', 'eq', query.completed)
             .limit(10);
         if (error) {
             throw error
@@ -51,10 +51,10 @@ export const SearchText = async (query) => {
 }
 
 //修改列表数据
-export const UpdateAccount = async (update, id) => {
+export const UpdateTodo = async (update, id) => {
     try {
         const { error } = await supabase
-            .from('account')
+            .from('todo_list')
             .update(update)
             .eq('id', id)
         if (error) {
@@ -68,11 +68,11 @@ export const UpdateAccount = async (update, id) => {
 }
 
 //添加数据
-export const AddAccount = async (account) => {
+export const AddTodo = async (todo) => {
     try {
         const { error } = await supabase
-            .from('account')
-            .insert(account)
+            .from('todo_list')
+            .insert(todo)
         if (error) {
             throw error
         } else {
@@ -83,10 +83,10 @@ export const AddAccount = async (account) => {
     }
 }
 //删除数据
-export const DeleteAccount = async (id) => {
+export const DeleteTodo = async (id) => {
     try {
         const { error } = await supabase
-            .from('account')
+            .from('todo_list')
             .delete()
             .eq('id', id);
         if (error) {

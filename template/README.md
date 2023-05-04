@@ -5,7 +5,7 @@
 2.创建数据表
 
 ```sql
--- Create a table for public profiles
+-- 创建用户信息表
 CREATE TABLE "public"."profile" ( 
   "id" uuid default uuid_generate_v4() primary key,
   "created_at" timestamp default now() ,
@@ -14,16 +14,15 @@ CREATE TABLE "public"."profile" (
   "avatar" VARCHAR,
   "introduction" VARCHAR
 );
--- Create a table for public account
-CREATE TABLE "public"."account" ( 
+-- 创建todo表
+CREATE TABLE "public"."todo_list" ( 
   "id" SERIAL,
   "created_at" timestamp default now() ,
-  "user_name" TEXT NOT NULL,
-  "email" TEXT NOT NULL,
-  "age" INT NOT NULL,
-  "address" TEXT NOT NULL
+  "user_id" uuid references public.profile not null,
+  "todo" VARCHAR NOT NULL
+  "completed" BOOLEAN NOT NULL,
 );
--- Create a table for public messages
+-- 创建聊天记录表
 CREATE TABLE "public"."messages" ( 
   "id" SERIAL,
   "user_id" uuid references public.profile not null,
@@ -33,21 +32,26 @@ CREATE TABLE "public"."messages" (
   "avatar" VARCHAR NOT NULL
 );
 -- Set up Row Level Security (RLS)
--- See https://supabase.com/docs/guides/auth/row-level-security for more details.
-alter table profile enable row level security;
+alter table todo_list enable row level security;
 
-create policy "Public profile are viewable by everyone."
-  on profile for select
-  using ( true );
+-- 用户自己可以只能删改查自己的todo
+create policy "Users can select their own todo_list."
+  on todo_list for select
+  using ( auth.uid() = user_id );
 
-create policy "Users can insert their own profile."
-  on profile for insert
-  with check ( auth.uid() = id );
+create policy "Users can insert their own todo_list."
+  on todo_list for insert
+  with check ( auth.uid() = user_id );
 
-create policy "Users can update own profile."
-  on profile for update
-  using ( auth.uid() = id );
+create policy "Users can update own todo_list."
+  on todo_list for update
+  using ( auth.uid() = user_id );
 
+  create policy "Users can delete own todo_list."
+  on todo_list for delete
+  using ( auth.uid() = user_id );
+
+-- 人员信息列表每个人都可以访问
 alter table account
   enable row level security;
 
@@ -63,6 +67,9 @@ create policy "Users can select their own account." on account
 create policy "Users can delete their own account." on account
   for delete using (true);
 
+
+-- 聊天信息表每个人都可以查询数据；只有用户自己才能发送消息。
+
 alter table messages
   enable row level security;
 
@@ -74,7 +81,7 @@ create policy "Users can insert their own messages." on messages
 
 /**
  * REALTIME SUBSCRIPTIONS
- * Only allow realtime listening on public tables.
+ * 只允许在公共表进行实时监听。
  */
 
 begin;
@@ -88,7 +95,7 @@ commit;
 -- add tables to the publication
 alter publication supabase_realtime add table public.messages;
 
--- Set up Storage!
+-- 创建存储桶
 insert into storage.buckets (id, name)
   values ('avatars', 'avatars');
 
