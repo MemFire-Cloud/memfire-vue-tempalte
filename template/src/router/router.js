@@ -10,10 +10,10 @@ const routes = [
         component: () => import('../pages/Login/index.vue'),
     },
     {
-        path: '/sinUp',
-        name: 'sinUp',
+        path: '/signUp',
+        name: 'signUp',
         // 懒加载路由
-        component: () => import('../pages/SinUp/index.vue'),
+        component: () => import('../pages/SignUp/index.vue'),
     },
     {
         path: '/profile',
