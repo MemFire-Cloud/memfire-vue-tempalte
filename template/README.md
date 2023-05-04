@@ -19,8 +19,8 @@ CREATE TABLE "public"."todo_list" (
   "id" SERIAL,
   "created_at" timestamp default now() ,
   "user_id" uuid references public.profile not null,
-  "todo" VARCHAR NOT NULL
-  "completed" BOOLEAN NOT NULL,
+  "todo" VARCHAR NOT NULL,
+  "completed" BOOLEAN NOT NULL
 );
 -- 创建聊天记录表
 CREATE TABLE "public"."messages" ( 
