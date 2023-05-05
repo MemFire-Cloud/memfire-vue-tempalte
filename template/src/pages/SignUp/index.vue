@@ -14,7 +14,7 @@ const handleSinUp = (event) => {
   SignUp(email.value,password.value )
     .then((res) => {
       router.push({
-        name: "/"
+        name: "login"
       });
     })
     .catch((err) => {

@@ -1,7 +1,7 @@
 <script setup>
 import { GetInitialMessages, SendMessages, GetProfile } from "./api";
 import HeaderComponent from "../../components/HeaderComponent.vue";
-import { supabase } from '../../supabaseClient'
+import { supabase } from "../../supabaseClient";
 import { message } from "ant-design-vue";
 import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
@@ -31,10 +31,14 @@ onMounted(() => {
       }
     )
     .subscribe();
-    //查询个人信息
+  //查询个人信息
   if (router.currentRoute.value.query.id) {
     GetProfile(router.currentRoute.value.query.id).then((res) => {
-      userInfo.value = res;
+      if (JSON.stringify(res) !== "{}") {
+        userInfo.value = res;
+      } else {
+        message.error("请先补充个人信息");
+      }
     });
   } else {
     message.error("请先登录");
@@ -70,21 +74,25 @@ const sendMessage = (values) => {
 <template>
   <a-layout style="height: 100vh">
     <HeaderComponent :type="3" />
-    <a-content style="padding: 50px;width:70%">
+    <a-content style="padding: 50px; width: 70%">
       <a-row :gutter="16" class="overflow-y-auto bg-white">
         <a-col :span="16">
-          <a-list item-layout="horizontal" v-if="messages.length>0" :data-source="messages">
+          <a-list
+            item-layout="horizontal"
+            v-if="messages.length > 0"
+            :data-source="messages"
+          >
             <template #renderItem="{ item }">
-            <a-list-item>
-              <a-list-item-meta :description="item.message">
-                <template #avatar>
-                  <a-avatar :src="item.imgUrl" />
-                </template>
-                <template #title>
-                  <span>{{ item.profile.user_name }}</span>
-                </template>
-              </a-list-item-meta>
-            </a-list-item>
+              <a-list-item>
+                <a-list-item-meta :description="item.message">
+                  <template #avatar>
+                    <a-avatar :src="item.imgUrl" />
+                  </template>
+                  <template #title>
+                    <span>{{ item.user_name }}</span>
+                  </template>
+                </a-list-item-meta>
+              </a-list-item>
             </template>
           </a-list>
         </a-col>

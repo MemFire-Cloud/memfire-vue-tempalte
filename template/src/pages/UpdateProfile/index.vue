@@ -14,7 +14,7 @@ const filePath = ref("");
     // 在这里做更新个人信息的操作
     const handleSubmit = (event) => {
         event.preventDefault();
-        UpdateProfile({email:email.value,introduction:introduction.value,avatar:filePath.value,user_name:name.value},router.currentRoute.value.query.id).then((res) => {
+        UpdateProfile({email:email.value,introduction:introduction.value,avatar:filePath.value,user_name:name.value}).then((res) => {
             if (res) {
                 router.push({
                 name: "profile",
@@ -67,18 +67,17 @@ const filePath = ref("");
     }
     const getProfile =  (event) => {
         GetProfile(router.currentRoute.value.query.id).then((res) => {
-            if (res) {
-                if (res) {
-                    if(res[0].avatar){
-                        downloadImage(res[0].avatar)
+            if (JSON.stringify(res) !== '{}') {
+                    if(res.avatar){
+                        downloadImage(res.avatar)
                     }
-                    filePath.value = res[0].avatar
-                    name.value = res[0].user_name
-                    email.value = res[0].email
-                    introduction.value = res[0].introduction
-                }
+                    filePath.value = res.avatar
+                    name.value = res.user_name
+                    email.value = res.email
+                    introduction.value = res.introduction
             }
         }).catch(err => {
+            message.error(err)
         })
     }
     const back = () => {

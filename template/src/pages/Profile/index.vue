@@ -14,17 +14,17 @@ onMounted(() => {
 const getProfile = () => {
   GetProfile(router.currentRoute.value.query.id)
     .then((res) => {
-      if (res) {
-        if(res[0].avatar){
-          downloadImage(res[0].avatar);
-        }else{
-          message.info('暂无完整个人信息，请前去修改个人信息！');
+      if (JSON.stringify(res) !== '{}') {
+        if (res.avatar) {
+          downloadImage(res.avatar);
         }
-        profile.value = res[0];
+        profile.value = res;
+      } else {
+        message.info("暂无完整个人信息，请前去修改个人信息！");
       }
     })
     .catch((err) => {
-      message.info('暂无完整个人信息，请前去修改个人信息！');
+      message.error(err);
     });
 };
 const downloadImage = (path) => {
