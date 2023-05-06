@@ -1,7 +1,7 @@
 <script setup>
-import { GetInitialMessages, SendMessages, GetProfile } from "./api";
+import { GetInitialMessages, SendMessages } from "./api";
 import HeaderComponent from "../../components/HeaderComponent.vue";
-import { supabase } from "../../supabaseClient";
+import { supabase } from '../../supabaseClient'
 import { message } from "ant-design-vue";
 import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
@@ -10,7 +10,8 @@ const messages = ref([]);
 const userInfo = ref(null);
 const messagetext = ref("");
 //创建一个侦听所有事件的处理程序。
-onMounted(() => {
+onMounted(async () => {
+  const { data:{session}, error } = await supabase.auth.getSession()
   supabase
     .channel("public:messages")
     .on(
@@ -31,15 +32,9 @@ onMounted(() => {
       }
     )
     .subscribe();
-  //查询个人信息
-  if (router.currentRoute.value.query.id) {
-    GetProfile(router.currentRoute.value.query.id).then((res) => {
-      if (JSON.stringify(res) !== "{}") {
-        userInfo.value = res;
-      } else {
-        message.error("请先补充个人信息");
-      }
-    });
+    //查询个人信息
+  if (session?.user?.id) {
+    userInfo.value = session?.user;
   } else {
     message.error("请先登录");
   }
@@ -57,8 +52,8 @@ const sendMessage = (values) => {
   SendMessages({
     user_id: userInfo.value.id,
     message: messagetext.value,
-    avatar: userInfo.value.avatar,
-    user_name: userInfo.value.user_name,
+    avatar: userInfo.value.user_metadata.avatar,
+    user_name: userInfo.value.user_metadata.user_name,
   })
     .then((res) => {
       if (res) {
@@ -74,25 +69,21 @@ const sendMessage = (values) => {
 <template>
   <a-layout style="height: 100vh">
     <HeaderComponent :type="3" />
-    <a-content style="padding: 50px; width: 70%">
+    <a-content style="padding: 50px;width:70%">
       <a-row :gutter="16" class="overflow-y-auto bg-white">
         <a-col :span="16">
-          <a-list
-            item-layout="horizontal"
-            v-if="messages.length > 0"
-            :data-source="messages"
-          >
+          <a-list item-layout="horizontal" v-if="messages.length>0" :data-source="messages">
             <template #renderItem="{ item }">
-              <a-list-item>
-                <a-list-item-meta :description="item.message">
-                  <template #avatar>
-                    <a-avatar :src="item.imgUrl" />
-                  </template>
-                  <template #title>
-                    <span>{{ item.user_name }}</span>
-                  </template>
-                </a-list-item-meta>
-              </a-list-item>
+            <a-list-item>
+              <a-list-item-meta :description="item.message">
+                <template #avatar>
+                  <a-avatar :src="item.imgUrl" />
+                </template>
+                <template #title>
+                  <span>{{ item.user_name }}</span>
+                </template>
+              </a-list-item-meta>
+            </a-list-item>
             </template>
           </a-list>
         </a-col>

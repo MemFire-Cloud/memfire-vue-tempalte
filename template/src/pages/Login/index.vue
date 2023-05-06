@@ -14,19 +14,6 @@ onMounted(() => {
     if (session) {
       router.push({
         name: "profile",
-        query: {
-          id: session.user.id,
-        },
-      });
-    }
-  });
-  supabase.auth.onAuthStateChange((_event, session) => {
-    if (session) {
-      router.push({
-        name: "profile",
-        query: {
-          id: session.user.id,
-        },
       });
     }
   });
@@ -38,9 +25,6 @@ const handleLogin = (event) => {
     .then((res) => {
       router.push({
         name: "profile",
-        query: {
-          id: res.id,
-        },
       });
     })
     .catch((err) => {
@@ -96,7 +80,7 @@ const handleLogin = (event) => {
         </button>
         <a
           className="inline-block align-baseline font-bold text-sm text-blue-500 hover:text-blue-800"
-          href="#/signUp"
+          href="#/sinUp"
         >
           注册
         </a>

@@ -1,15 +1,9 @@
-
-
-
-
 <script setup>
 import { message } from "ant-design-vue";
 import { ref, onMounted, watch } from "vue";
-import { useRouter } from "vue-router";
 import { UploadOutlined } from '@ant-design/icons-vue';
 import HeaderComponent from "../../components/HeaderComponent.vue";
 import { UploadFile, DownloadFile, removeFile, ListFile, ListProfixFile } from './api'
-    const router = useRouter();
     const fileList= ref([]);
     const openKeys = ref(['all']);
     onMounted(() => {

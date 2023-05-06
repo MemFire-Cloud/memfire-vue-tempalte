@@ -43,21 +43,21 @@ export default {
       <div className="logo" />
       <a-menu theme="dark" mode="horizontal" v-model:selectedKeys="type">
         <a-menu-item key="1"
-          ><a :href="'#/crud?id=' + router.currentRoute.value.query.id">CRUD</a>
+          ><a :href="'#/crud'">CRUD</a>
         </a-menu-item>
 
         <a-menu-item key="2"
-          ><a :href="'#/filestorage?id=' + router.currentRoute.value.query.id"
+          ><a :href="'#/filestorage'"
             >网盘</a
           ></a-menu-item
         >
         <a-menu-item key="3"
-          ><a :href="'#/chatroom?id=' + router.currentRoute.value.query.id"
+          ><a :href="'#/chatroom'"
             >聊天室</a
           ></a-menu-item
         >
         <a-menu-item key="4"
-          ><a :href="'#/profile?id=' + router.currentRoute.value.query.id"
+          ><a :href="'#/profile'"
             >个人信息</a
           ></a-menu-item
         >

@@ -2,6 +2,7 @@
 import { message } from "ant-design-vue";
 import { ref, onMounted, watch } from "vue";
 import { useRouter } from "vue-router";
+import { supabase } from "../../supabaseClient";
 import HeaderComponent from "../../components/HeaderComponent.vue";
 import {
   FetchTodo,
@@ -47,12 +48,13 @@ const onFinishSearch = () => {
       message.error(err);
     });
 };
-const handleOk = () => {
+const handleOk = async () => {
+  const { data:{session}, error } = await supabase.auth.getSession()
   if (addModel.value) {
     AddTodo({
       todo: todoInfo.value,
       completed:completed.value,
-      user_id: router.currentRoute.value.query.id
+      user_id: session.user.id
     })
       .then((res) => {
         getTodoList(start.value, end.value);

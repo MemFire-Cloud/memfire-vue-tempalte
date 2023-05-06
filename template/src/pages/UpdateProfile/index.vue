@@ -2,25 +2,22 @@
 import { message } from 'ant-design-vue';
 import { ref ,onMounted ,watch} from "vue";
 import { useRouter } from 'vue-router'
-import { DownloadImage, UploadImage, UpdateProfile, GetProfile } from './api'
+import { supabase } from "../../supabaseClient";
+import { DownloadImage, UploadImage, UpdateProfile } from './api'
 const router = useRouter()
 const name = ref("");
 const loading = ref(false);
 const password = ref("");
-const email = ref("");
 const introduction = ref("");
 const imageUrl = ref("");
 const filePath = ref("");
     // 在这里做更新个人信息的操作
     const handleSubmit = (event) => {
         event.preventDefault();
-        UpdateProfile({email:email.value,introduction:introduction.value,avatar:filePath.value,user_name:name.value}).then((res) => {
+        UpdateProfile({introduction:introduction.value,avatar:filePath.value,user_name:name.value}).then((res) => {
             if (res) {
                 router.push({
-                name: "profile",
-                query: {
-                id: router.currentRoute.value.query.id,
-                },
+                name: "profile"
             });
             message.success('修改成功')
             }
@@ -56,7 +53,7 @@ const filePath = ref("");
         })
     }
 
-     function downloadImage(path) {
+    function downloadImage(path) {
         DownloadImage(path).then((res) => {
             if (res) {
                 imageUrl.value = res
@@ -65,23 +62,19 @@ const filePath = ref("");
             message.error(err)
         })
     }
-    const getProfile =  (event) => {
-        GetProfile(router.currentRoute.value.query.id).then((res) => {
-            if (JSON.stringify(res) !== '{}') {
-                    if(res.avatar){
-                        downloadImage(res.avatar)
+    const getProfile =  async (event) => {
+        const { data:{session}, error } = await supabase.auth.getSession()
+            if (JSON.stringify(session.user.user_metadata) !== '{}') {
+                    if(session.user.user_metadata.avatar){
+                        downloadImage(session.user.user_metadata.avatar)
                     }
-                    filePath.value = res.avatar
-                    name.value = res.user_name
-                    email.value = res.email
-                    introduction.value = res.introduction
+                    filePath.value = session.user.user_metadata.avatar
+                    name.value = session.user.user_metadata.user_name
+                    introduction.value = session.user.user_metadata.introduction
             }
-        }).catch(err => {
-            message.error(err)
-        })
     }
     const back = () => {
-         router.back();
+        router.back();
     }
 </script>
 
@@ -125,18 +118,6 @@ const filePath = ref("");
                             id="name"
                             type="text"
                             v-model:value="name"
-                            required
-                        />
-                    </div>
-                    <div class="mb-5">
-                        <label class="block font-bold mb-2" htmlFor="email">
-                            邮箱
-                        </label>
-                        <a-input
-                            class="w-full px-3 py-2 border rounded-md"
-                            id="email"
-                            type="email"
-                            v-model:value="email"
                             required
                         />
                     </div>
