@@ -80,7 +80,7 @@ const handleLogin = (event) => {
         </button>
         <a
           className="inline-block align-baseline font-bold text-sm text-blue-500 hover:text-blue-800"
-          href="#/sinUp"
+          href="#/signUp"
         >
           注册
         </a>
